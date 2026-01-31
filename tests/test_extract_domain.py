@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import pwdhash
-from nose_parameterized import parameterized
+from parameterized import parameterized
 
 DOMAINS_TO_CHECK = (
     "a.pl", "example.com", "example.gov.sg", "two-words42.cnt.br"

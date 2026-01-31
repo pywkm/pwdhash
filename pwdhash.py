@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals
-
 import re
 import sys
 import hmac
@@ -13,11 +11,7 @@ import itertools
 
 import pyperclip
 
-PY2 = sys.version_info[0] < 3
 PASSWORD_PREFIX = "@@"
-
-if PY2:
-    input = raw_input  # noqa F821 (on Py3.x static_analysis would never pass)
 
 
 def _b64_hmac_md5(key, data):
@@ -26,11 +20,8 @@ def _b64_hmac_md5(key, data):
     stripped.
     """
 
-    # For Py3 and Unicode compatibility
     data = str2bytes(data)
     key = str2bytes(key)
-
-    # In Py3 hmac.digest() returns bytes, so
     digest = hmac.HMAC(key, data, hashlib.md5).digest()
     bdigest = codecs.encode(digest, "base64").decode().strip()
 
@@ -47,8 +38,6 @@ def str2bytes(string):
     """
     u16le = "utf-16-le"
     encoded = (letter.encode(u16le)[0] for letter in string)
-    if PY2:
-        return b''.join(encoded)
     return bytes(encoded)
 
 
@@ -184,9 +173,6 @@ def console_main():
 
     domain = extract_domain(uri)
     password = getpass.getpass("Password for {}: ".format(domain))
-    if PY2:
-        # getpass returns str (bytes) instead of unicode in Py2
-        password = password.decode('utf-8')
     generated = generate(password, domain)
 
     try:

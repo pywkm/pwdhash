@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import pwdhash
-from nose_parameterized import parameterized
+from parameterized import parameterized
 
 
 TEST_PARAMETERS = (
