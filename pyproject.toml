@@ -27,7 +27,10 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = ["pyperclip"]
+dependencies = []
+
+[project.optional-dependencies]
+clipboard = ["pyperclip"]
 
 [project.urls]
 Homepage = "https://github.com/abbot/pwdhash"
@@ -41,6 +44,7 @@ dev = [
     "pytest-cov",
     "ruff",
     "mypy",
+    "pyperclip",
     "types-pyperclip>=1.11.0.20260508",
 ]
 

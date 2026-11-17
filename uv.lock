@@ -604,13 +604,16 @@ wheels = [
 name = "pwdhash-py"
 version = "1.0.0.dev0"
 source = { editable = "." }
-dependencies = [
+
+[package.optional-dependencies]
+clipboard = [
     { name = "pyperclip" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
+    { name = "pyperclip" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
@@ -618,11 +621,13 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pyperclip" }]
+requires-dist = [{ name = "pyperclip", marker = "extra == 'clipboard'" }]
+provides-extras = ["clipboard"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy" },
+    { name = "pyperclip" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
