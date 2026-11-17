@@ -178,7 +178,7 @@ def console_main():
     try:
         pyperclip.copy(generated)
         print("\nHashed password was copied to clipboard.")
-    except pyperclip.exceptions.PyperclipException as error:
+    except pyperclip.PyperclipException as error:
         print(error)
         print("\nHashed password: {}".format(generated))
 
