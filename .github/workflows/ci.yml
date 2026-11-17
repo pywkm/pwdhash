@@ -64,5 +64,5 @@ jobs:
           enable-cache: true
       - name: Build sdist and wheel
         run: uv build
-      - name: Check that the wheel installs and imports
-        run: uvx --isolated --from dist/*.whl python -c "import pwdhash; print(pwdhash.__version__)"
+      - name: Check that the wheel installs and runs
+        run: uvx --isolated --from dist/*.whl pwdhash --version
