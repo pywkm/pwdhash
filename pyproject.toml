@@ -44,3 +44,17 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "pwdhash"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "--strict-markers", "--cov=pwdhash", "--cov-report=term-missing"]
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["pwdhash"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true

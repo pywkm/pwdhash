@@ -1,3 +1,5 @@
+import runpy
+
 import pyperclip
 import pytest
 
@@ -62,3 +64,11 @@ def test_should_print_hash_when_clipboard_unavailable(monkeypatch, capsys,
     out = capsys.readouterr().out
     assert "no clipboard mechanism" in out
     assert f"Hashed password: {EXPECTED}" in out
+
+
+def test_should_run_as_module(monkeypatch, fake_getpass, clipboard):
+    monkeypatch.setattr("sys.argv", ["pwdhash", "example.com"])
+
+    runpy.run_module("pwdhash", run_name="__main__")
+
+    assert clipboard == [EXPECTED]
