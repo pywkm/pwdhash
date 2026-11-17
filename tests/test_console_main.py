@@ -61,4 +61,4 @@ def test_should_print_hash_when_clipboard_unavailable(monkeypatch, capsys,
 
     out = capsys.readouterr().out
     assert "no clipboard mechanism" in out
-    assert "Hashed password: {}".format(EXPECTED) in out
+    assert f"Hashed password: {EXPECTED}" in out

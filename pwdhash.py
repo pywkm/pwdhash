@@ -3,7 +3,7 @@
 import re
 import sys
 import hmac
-import codecs
+import base64
 import hashlib
 import getpass
 import itertools
@@ -22,9 +22,7 @@ def _b64_hmac_md5(key, data):
     data = str2bytes(data)
     key = str2bytes(key)
     digest = hmac.HMAC(key, data, hashlib.md5).digest()
-    bdigest = codecs.encode(digest, "base64").decode().strip()
-
-    return re.sub("=+$", "", bdigest)
+    return base64.b64encode(digest).decode("ascii").rstrip("=")
 
 
 def str2bytes(string):
@@ -111,8 +109,7 @@ def generate(password, uri):
     domain name.
     """
     realm = extract_domain(uri)
-    if password.startswith(PASSWORD_PREFIX):
-        password = password[len(PASSWORD_PREFIX):]
+    password = password.removeprefix(PASSWORD_PREFIX)
 
     password_hash = _b64_hmac_md5(password, realm)
     size = len(password) + len(PASSWORD_PREFIX)
@@ -143,7 +140,7 @@ def _apply_constraints(password_hash, size, is_non_alphanumeric):
     chars_ranges = (("A", "Z"), ("a", "z"), ("0", "9"))
 
     for first, last in chars_ranges:
-        any_of_chars = re.compile("[{}-{}]".format(first, last))
+        any_of_chars = re.compile(f"[{first}-{last}]")
         if any_of_chars.search(result):
             result += next(extra_chars)
         else:
@@ -171,7 +168,7 @@ def console_main():
         uri = input("Domain: ").strip()
 
     domain = extract_domain(uri)
-    password = getpass.getpass("Password for {}: ".format(domain))
+    password = getpass.getpass(f"Password for {domain}: ")
     generated = generate(password, domain)
 
     try:
@@ -179,7 +176,7 @@ def console_main():
         print("\nHashed password was copied to clipboard.")
     except pyperclip.PyperclipException as error:
         print(error)
-        print("\nHashed password: {}".format(generated))
+        print(f"\nHashed password: {generated}")
 
 
 if __name__ == "__main__":

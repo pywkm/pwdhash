@@ -44,15 +44,15 @@ TEST_PARAMETERS = (
     # check if generate() has extract_domain attached (to work as standalone)
     (
         "default_password_example_domain_with_protocol",
-        PASSWORD, "http://{}".format(DOMAIN), "0JMBoaKI7NFhObN",
+        PASSWORD, f"http://{DOMAIN}", "0JMBoaKI7NFhObN",
     ),
     (
         "default_password_example_domain_with_subdomain",
-        PASSWORD, "http://bogus.{}".format(DOMAIN), "0JMBoaKI7NFhObN",
+        PASSWORD, f"http://bogus.{DOMAIN}", "0JMBoaKI7NFhObN",
     ),
     (
         "default_password_example_domain_with_query_params",
-        PASSWORD, "http://bogus.{}/path?test=test".format(DOMAIN),
+        PASSWORD, f"http://bogus.{DOMAIN}/path?test=test",
         "0JMBoaKI7NFhObN",
     ),
 
