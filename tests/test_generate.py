@@ -53,6 +53,23 @@ TEST_PARAMETERS = (
         "jYNNgw1//znH8/aFIU19+g",
         id="hungarian_unicode_password",
     ),
+    # outside the BMP (computed with the original pwdhash.js): the password is
+    # hashed and its length counted in UTF-16 code units, as in JavaScript
+    pytest.param("ab\U0001f600cd", DOMAIN, "EeSo5+zZ", id="emoji_password"),
+    pytest.param("\U0001f600" * 3, DOMAIN, "N0+e0cXv", id="only_emoji_password"),
+    pytest.param(
+        "za\u017c\u00f3\u0142\u0107\U0001f600",
+        DOMAIN,
+        "iC4+JNpKRa",
+        id="polish_and_emoji",
+    ),
+    pytest.param("\U0001f511\U0001f512", "github.com", "+c2UAj", id="two_emoji"),
+    pytest.param(
+        "x\U0001f600" * 12 + "!", DOMAIN, "c78ce0gsyf+nD0ReAJPTsQ", id="long_emoji"
+    ),
+    # pwdhash.js pads passwords of 24+ chars with NUL characters when the hash
+    # runs out; they are stripped here (it gives "oXBHg4L654gaL0aU98knRw\0\0\0\0")
+    pytest.param("!" * 24, DOMAIN, "oXBHg4L654gaL0aU98knRw", id="nul_padding_stripped"),
     pytest.param(
         pwdhash.PASSWORD_PREFIX + PASSWORD,
         DOMAIN,

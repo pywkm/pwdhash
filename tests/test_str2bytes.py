@@ -23,6 +23,9 @@ TEST_PARAMETERS = (
         b"\xc1rv\xedztqrQ t\xfck\xf6rf\xfar\xf3g\xe9p",
         id="hungarian_unicode_string",
     ),
+    # outside the BMP: two UTF-16 code units, like charCodeAt() in JavaScript
+    pytest.param("a\U0001f600\u017c", b"a=\x00|", id="emoji_two_code_units"),
+    pytest.param("\ud83d", b"=", id="lone_surrogate"),
 )
 
 

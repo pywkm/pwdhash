@@ -22,17 +22,25 @@ def _b64_hmac_md5(key: str, data: str) -> str:
     return base64.b64encode(digest).decode("ascii").rstrip("=")
 
 
+def _utf16_units(string: str) -> bytes:
+    """Return ``string`` as UTF-16-LE, i.e. two bytes per JavaScript char.
+
+    Characters outside the BMP (e.g. emoji) take two UTF-16 code units,
+    just like in JavaScript strings. Lone surrogates are passed through.
+    """
+    return string.encode("utf-16-le", "surrogatepass")
+
+
 def str2bytes(string: str) -> bytes:
     """
-    Returns string encoded to bytes, in way that every letter is represented
-    by only first byte after encoding it with "UTF-16-LE" encoding.
+    Returns string encoded to bytes the way pwdhash.js does it: every UTF-16
+    code unit is represented by its low byte (``charCodeAt(i) & 0xFF``).
     For ascii characters this means that its return is the same as
-    str.encode(), but for other unicode strings (eg. Polish) this does its job.
+    str.encode(), for other BMP characters (eg. Polish) it is one byte per
+    character and characters outside the BMP (eg. emoji) give two bytes.
     Example: str2bytes("ąśćóasco") --> b"\x05[\x07\xf3asco"
     """
-    u16le = "utf-16-le"
-    encoded = (letter.encode(u16le)[0] for letter in string)
-    return bytes(encoded)
+    return _utf16_units(string)[::2]
 
 
 def generate(password: str, uri: str) -> str:
@@ -44,7 +52,8 @@ def generate(password: str, uri: str) -> str:
     password = password.removeprefix(PASSWORD_PREFIX)
 
     password_hash = _b64_hmac_md5(password, realm)
-    size = len(password) + len(PASSWORD_PREFIX)
+    # the length is counted in UTF-16 code units, like JavaScript's .length
+    size = len(_utf16_units(password)) // 2 + len(PASSWORD_PREFIX)
     is_non_alphanumeric = bool(re.search(r"[^a-zA-Z0-9_]", password))
 
     return _apply_constraints(password_hash, size, is_non_alphanumeric)
