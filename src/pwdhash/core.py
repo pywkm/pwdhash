@@ -5,25 +5,24 @@ import hashlib
 import hmac
 import itertools
 import re
+from collections.abc import Iterator
 
 from .domains import extract_domain
 
 PASSWORD_PREFIX = "@@"
 
 
-def _b64_hmac_md5(key, data):
+def _b64_hmac_md5(key: str, data: str) -> str:
     """
     return base64-encoded HMAC-MD5 for key and data, with trailing "="
     stripped.
     """
 
-    data = str2bytes(data)
-    key = str2bytes(key)
-    digest = hmac.HMAC(key, data, hashlib.md5).digest()
+    digest = hmac.HMAC(str2bytes(key), str2bytes(data), hashlib.md5).digest()
     return base64.b64encode(digest).decode("ascii").rstrip("=")
 
 
-def str2bytes(string):
+def str2bytes(string: str) -> bytes:
     """
     Returns string encoded to bytes, in way that every letter is represented
     by only first byte after encoding it with "UTF-16-LE" encoding.
@@ -36,7 +35,7 @@ def str2bytes(string):
     return bytes(encoded)
 
 
-def generate(password, uri):
+def generate(password: str, uri: str) -> str:
     """
     generate the pwdhash password for master password and uri or
     domain name.
@@ -51,7 +50,7 @@ def generate(password, uri):
     return _apply_constraints(password_hash, size, is_non_alphanumeric)
 
 
-def _apply_constraints(password_hash, size, is_non_alphanumeric):
+def _apply_constraints(password_hash: str, size: int, is_non_alphanumeric: bool) -> str:
     """
     Fiddle with the password a bit after hashing it so that it will
     get through most website filters. We require one upper and lower
@@ -61,12 +60,12 @@ def _apply_constraints(password_hash, size, is_non_alphanumeric):
     starting_size = 0 if size < 4 else size - 4
     result = password_hash[:starting_size]
 
-    extras = itertools.chain(
+    extras: Iterator[int] = itertools.chain(
         (ord(ch) for ch in password_hash[starting_size:]), itertools.repeat(0)
     )
     extra_chars = (chr(ch) for ch in extras)
 
-    def next_between(start, end):
+    def next_between(start: str, end: str) -> str:
         interval = ord(end) - ord(start) + 1
         offset = next(extras) % interval
         return chr(ord(start) + offset)

@@ -45,5 +45,5 @@ GOLDEN_VECTORS = [
 
 
 @pytest.mark.parametrize(("password", "uri", "expected"), GOLDEN_VECTORS)
-def test_generate_matches_golden_vector(password, uri, expected):
+def test_generate_matches_golden_vector(password: str, uri: str, expected: str) -> None:
     assert pwdhash.generate(password, uri) == expected

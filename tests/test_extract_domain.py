@@ -18,5 +18,11 @@ URI_FORMATS = {
 
 @pytest.mark.parametrize("domain", DOMAINS_TO_CHECK)
 @pytest.mark.parametrize("uri_format", URI_FORMATS.values(), ids=URI_FORMATS.keys())
-def test_should_extract_domain_from(uri_format, domain):
+def test_should_extract_domain_from(uri_format: str, domain: str) -> None:
     assert pwdhash.extract_domain(uri_format.format(domain)) == domain
+
+
+@pytest.mark.parametrize("uri", ["", "/path"])
+def test_should_reject_uri_without_host(uri: str) -> None:
+    with pytest.raises(ValueError, match="Cannot extract domain"):
+        pwdhash.extract_domain(uri)

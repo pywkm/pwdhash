@@ -82,6 +82,6 @@ TEST_PARAMETERS = (
 
 
 @pytest.mark.parametrize(("password", "domain", "expected"), TEST_PARAMETERS)
-def test_should_generate_hash_for(password, domain, expected):
+def test_should_generate_hash_for(password: str, domain: str, expected: str) -> None:
     generated = pwdhash.generate(password, domain)
     assert generated == expected

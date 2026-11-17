@@ -279,12 +279,15 @@ _domains = frozenset(
 )
 
 
-def extract_domain(host):
+def extract_domain(host: str) -> str:
     """
     Domain name extractor. Turns host names into domain names, ported
     from pwdhash javascript code"""
     host = re.sub("https?://", "", host)
-    host = re.match("([^/]+)", host).groups()[0]
+    match = re.match("([^/]+)", host)
+    if match is None:
+        raise ValueError(f"Cannot extract domain from {host!r}")
+    host = match.group(1)
     domain = ".".join(host.split(".")[-2:])
     if domain in _domains:
         domain = ".".join(host.split(".")[-3:])

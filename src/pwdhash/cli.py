@@ -9,7 +9,7 @@ from .core import generate
 from .domains import extract_domain
 
 
-def main():
+def main() -> None:
     uri = sys.argv[1] if len(sys.argv) > 1 else input("Domain: ").strip()
 
     domain = extract_domain(uri)
