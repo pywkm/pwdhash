@@ -1,6 +1,7 @@
 """Domain name extraction, ported from the original pwdhash.js."""
 
 import re
+from urllib.parse import urlsplit
 
 # set of domain suffixes to be kept
 _domains = frozenset(
@@ -279,16 +280,37 @@ _domains = frozenset(
 )
 
 
-def extract_domain(host: str) -> str:
+# "scheme://" at the start of the input; without it urlsplit() would treat
+# e.g. "localhost:8080" as scheme "localhost"
+_SCHEME = re.compile(r"[a-z][a-z0-9+.-]*://", re.IGNORECASE)
+
+
+def extract_domain(uri: str) -> str:
+    """Return the domain name PwdHash uses as the realm for ``uri``.
+
+    Ported from pwdhash javascript code: the last two labels of the host
+    name are kept, or three when the last two form a known suffix
+    (e.g. ``co.uk``). Unlike the original, the scheme (any, in any case),
+    user info, port and trailing dot are ignored and the result is
+    lowercased. IP addresses are treated like the original does: IPv4 is
+    cut to its last two numbers, an IPv6 literal is kept whole, in brackets.
+
+    Raises ValueError when no host name can be found in ``uri``.
     """
-    Domain name extractor. Turns host names into domain names, ported
-    from pwdhash javascript code"""
-    host = re.sub("https?://", "", host)
-    match = re.match("([^/]+)", host)
-    if match is None:
-        raise ValueError(f"Cannot extract domain from {host!r}")
-    host = match.group(1)
-    domain = ".".join(host.split(".")[-2:])
+    stripped = uri.strip()
+    if not _SCHEME.match(stripped):
+        stripped = "//" + stripped
+    try:
+        host = urlsplit(stripped).hostname
+    except ValueError:  # e.g. unbalanced brackets of an IPv6 literal
+        host = None
+    if host and ":" in host:  # IPv6 literal
+        return f"[{host}]"
+    host = (host or "").rstrip(".")
+    if not host:
+        raise ValueError(f"Cannot extract domain from {uri!r}")
+    labels = host.split(".")
+    domain = ".".join(labels[-2:])
     if domain in _domains:
-        domain = ".".join(host.split(".")[-3:])
+        domain = ".".join(labels[-3:])
     return domain
