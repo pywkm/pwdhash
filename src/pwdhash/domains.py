@@ -3,8 +3,9 @@
 import re
 from urllib.parse import urlsplit
 
-# set of domain suffixes to be kept
-_domains = frozenset(
+# suffixes after which three labels of the host name are kept instead of
+# two; outdated, but changing it would change generated passwords
+_SUFFIXES = frozenset(
     [
         "ab.ca",
         "ac.ac",
@@ -311,6 +312,6 @@ def extract_domain(uri: str) -> str:
         raise ValueError(f"Cannot extract domain from {uri!r}")
     labels = host.split(".")
     domain = ".".join(labels[-2:])
-    if domain in _domains:
+    if domain in _SUFFIXES:
         domain = ".".join(labels[-3:])
     return domain

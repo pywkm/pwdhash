@@ -1,25 +1,17 @@
-"""Core PwdHash algorithm."""
+"""Core PwdHash algorithm, ported from the original pwdhash.js."""
 
 import base64
 import hashlib
 import hmac
 import itertools
 import re
-from collections.abc import Iterator
 
 from .domains import extract_domain
 
 PASSWORD_PREFIX = "@@"
 
-
-def _b64_hmac_md5(key: str, data: str) -> str:
-    """
-    return base64-encoded HMAC-MD5 for key and data, with trailing "="
-    stripped.
-    """
-
-    digest = hmac.HMAC(str2bytes(key), str2bytes(data), hashlib.md5).digest()
-    return base64.b64encode(digest).decode("ascii").rstrip("=")
+# JavaScript's \W without the "u" flag: ASCII only, unlike Python's str \W
+_NON_WORD = re.compile(r"[^A-Za-z0-9_]")
 
 
 def _utf16_units(string: str) -> bytes:
@@ -32,21 +24,32 @@ def _utf16_units(string: str) -> bytes:
 
 
 def str2bytes(string: str) -> bytes:
-    """
-    Returns string encoded to bytes the way pwdhash.js does it: every UTF-16
-    code unit is represented by its low byte (``charCodeAt(i) & 0xFF``).
-    For ascii characters this means that its return is the same as
-    str.encode(), for other BMP characters (eg. Polish) it is one byte per
-    character and characters outside the BMP (eg. emoji) give two bytes.
-    Example: str2bytes("ąśćóasco") --> b"\x05[\x07\xf3asco"
+    """Return ``string`` as bytes the way pwdhash.js feeds it to HMAC-MD5.
+
+    Every UTF-16 code unit is represented by its low byte
+    (``charCodeAt(i) & 0xFF``). ASCII characters stay as they are, other BMP
+    characters (e.g. Polish) give one byte each and characters outside the
+    BMP (e.g. emoji) give two bytes.
+
+    Example: ``str2bytes("ąśćóasco") == b"\\x05[\\x07\\xf3asco"``
     """
     return _utf16_units(string)[::2]
 
 
+def _b64_hmac_md5(key: str, data: str) -> str:
+    """Return the base64-encoded HMAC-MD5 of ``data``, without "=" padding."""
+    digest = hmac.HMAC(str2bytes(key), str2bytes(data), hashlib.md5).digest()
+    return base64.b64encode(digest).decode("ascii").rstrip("=")
+
+
 def generate(password: str, uri: str) -> str:
-    """
-    generate the pwdhash password for master password and uri or
-    domain name.
+    """Return the PwdHash password for ``password`` on the site ``uri``.
+
+    ``uri`` may be a domain name or a URL; the realm is taken from it with
+    `extract_domain`. An optional ``PASSWORD_PREFIX`` ("@@") at the start of
+    ``password`` is ignored, as in the browser extension.
+
+    Raises ValueError when no domain can be extracted from ``uri``.
     """
     realm = extract_domain(uri)
     password = password.removeprefix(PASSWORD_PREFIX)
@@ -54,50 +57,58 @@ def generate(password: str, uri: str) -> str:
     password_hash = _b64_hmac_md5(password, realm)
     # the length is counted in UTF-16 code units, like JavaScript's .length
     size = len(_utf16_units(password)) // 2 + len(PASSWORD_PREFIX)
-    is_non_alphanumeric = bool(re.search(r"[^a-zA-Z0-9_]", password))
+    is_non_alphanumeric = _NON_WORD.search(password) is not None
 
     return _apply_constraints(password_hash, size, is_non_alphanumeric)
 
 
 def _apply_constraints(password_hash: str, size: int, is_non_alphanumeric: bool) -> str:
+    """Shape ``password_hash`` so that it passes typical password rules.
+
+    The result has ``size`` characters (at least 4) and contains an upper
+    case letter, a lower case letter and a digit. It contains a
+    non-alphanumeric character exactly when the master password does.
+
+    The first ``size - 4`` characters of the hash are kept and one character
+    is appended for each rule: the next unused hash character if the rule is
+    already met, otherwise a character derived from it. Finally the result
+    is rotated by an amount taken from the hash. Mirrors ``applyConstraints``
+    from pwdhash.js, so the output must stay exactly the same.
     """
-    Fiddle with the password a bit after hashing it so that it will
-    get through most website filters. We require one upper and lower
-    case, one digit, and we look at the user's password to determine
-    if there should be at least one alphanumeric or not.
-    """
-    starting_size = 0 if size < 4 else size - 4
+    starting_size = max(size - 4, 0)
     result = password_hash[:starting_size]
 
-    extras: Iterator[int] = itertools.chain(
-        (ord(ch) for ch in password_hash[starting_size:]), itertools.repeat(0)
+    # character codes of the unused part of the hash, then zeros, like
+    # nextExtra() in JavaScript
+    extras = itertools.chain(
+        map(ord, password_hash[starting_size:]), itertools.repeat(0)
     )
-    extra_chars = (chr(ch) for ch in extras)
 
-    def next_between(start: str, end: str) -> str:
-        interval = ord(end) - ord(start) + 1
-        offset = next(extras) % interval
-        return chr(ord(start) + offset)
+    def next_extra_char() -> str:
+        return chr(next(extras))
 
-    chars_ranges = (("A", "Z"), ("a", "z"), ("0", "9"))
+    def next_between(first: str, last: str) -> str:
+        interval = ord(last) - ord(first) + 1
+        return chr(ord(first) + next(extras) % interval)
 
-    for first, last in chars_ranges:
-        any_of_chars = re.compile(f"[{first}-{last}]")
-        if any_of_chars.search(result):
-            result += next(extra_chars)
+    for first, last in (("A", "Z"), ("a", "z"), ("0", "9")):
+        if re.search(f"[{first}-{last}]", result):
+            result += next_extra_char()
         else:
             result += next_between(first, last)
 
-    non_word = re.compile(r"\W")
-    if non_word.search(result) and is_non_alphanumeric:
-        result += next(extra_chars)
+    if is_non_alphanumeric and _NON_WORD.search(result):
+        result += next_extra_char()
     else:
         result += "+"
 
-    while non_word.search(result) and not is_non_alphanumeric:
-        result = non_word.sub(next_between("A", "Z"), result, 1)
+    if not is_non_alphanumeric:
+        while _NON_WORD.search(result):
+            result = _NON_WORD.sub(next_between("A", "Z"), result, count=1)
 
-    flip_place = next(extras) % len(result)
-    result = result[flip_place:] + result[:flip_place]
+    rotation = next(extras) % len(result)
+    result = result[rotation:] + result[:rotation]
 
+    # pwdhash.js keeps the NUL characters used as padding once the hash runs
+    # out; they are dropped here (a known, intentional difference)
     return result.strip("\x00")
