@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+#!/usr/bin/env python3
 
 from setuptools import setup
 
@@ -21,11 +20,13 @@ Stanford PwdHash (https://www.pwdhash.com/)""",
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities'
@@ -36,6 +37,7 @@ Stanford PwdHash (https://www.pwdhash.com/)""",
     url='https://github.com/abbot/pwdhash',
     license='BSD',
     py_modules=['pwdhash'],
+    python_requires='>=3.9',
     install_requires=[
       'pyperclip',
     ],
