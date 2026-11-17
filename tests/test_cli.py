@@ -214,7 +214,7 @@ def test_should_print_password_without_pyperclip(
     assert sleeps == []
     out, err = capsys.readouterr()
     assert out == f"{EXPECTED}\n"
-    assert "pwdhash.py[clipboard]" in err
+    assert "pwdhash-cli[clipboard]" in err
 
 
 def test_should_ask_for_domain_when_no_argument(

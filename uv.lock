@@ -601,7 +601,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pwdhash-py"
+name = "pwdhash-cli"
 version = "1.0.0.dev0"
 source = { editable = "." }
 

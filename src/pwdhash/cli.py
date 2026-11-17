@@ -79,7 +79,7 @@ def _copy(password: str) -> bool:
         import pyperclip
     except ImportError:
         _say(
-            "Clipboard support is not installed (pip install 'pwdhash.py[clipboard]')."
+            "Clipboard support is not installed (pip install 'pwdhash-cli[clipboard]')."
         )
         return False
     try:

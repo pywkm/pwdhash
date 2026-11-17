@@ -5,7 +5,7 @@ from importlib.metadata import version
 from .core import PASSWORD_PREFIX, generate
 from .domains import extract_domain
 
-__version__ = version("pwdhash.py")
+__version__ = version("pwdhash-cli")
 
 __all__ = [
     "PASSWORD_PREFIX",

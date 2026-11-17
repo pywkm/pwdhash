@@ -1,8 +1,8 @@
 [project]
-name = "pwdhash.py"
+name = "pwdhash-cli"
 version = "1.0.0.dev0"
-description = "Python Stanford PwdHash implementation"
-authors = [{ name = "Lev Shamardin", email = "shamardin@gmail.com" }]
+description = "Stanford PwdHash password generator: command line tool and Python library"
+authors = [{ name = "Wiktor Matuszewski", email = "pywkm@wukaem.pl" }]
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
@@ -33,7 +33,10 @@ dependencies = []
 clipboard = ["pyperclip"]
 
 [project.urls]
-Homepage = "https://github.com/abbot/pwdhash"
+Homepage = "https://github.com/pywkm/pwdhash"
+Source = "https://github.com/pywkm/pwdhash"
+Issues = "https://github.com/pywkm/pwdhash/issues"
+Changelog = "https://github.com/pywkm/pwdhash/blob/master/CHANGELOG.md"
 
 [project.scripts]
 pwdhash = "pwdhash.cli:main"
