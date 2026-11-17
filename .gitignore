@@ -5,7 +5,6 @@ dist/
 build/
 .venv/
 .cache/
-.tox/
 .coverage
 coverage.xml
 htmlcov/
