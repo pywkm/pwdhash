@@ -1,23 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals
+#!/usr/bin/env python3
 
 import re
 import sys
 import hmac
-import codecs
+import base64
 import hashlib
 import getpass
 import itertools
 
 import pyperclip
 
-PY2 = sys.version_info[0] < 3
 PASSWORD_PREFIX = "@@"
-
-if PY2:
-    input = raw_input  # noqa F821 (on Py3.x static_analysis would never pass)
 
 
 def _b64_hmac_md5(key, data):
@@ -26,15 +19,10 @@ def _b64_hmac_md5(key, data):
     stripped.
     """
 
-    # For Py3 and Unicode compatibility
     data = str2bytes(data)
     key = str2bytes(key)
-
-    # In Py3 hmac.digest() returns bytes, so
     digest = hmac.HMAC(key, data, hashlib.md5).digest()
-    bdigest = codecs.encode(digest, "base64").decode().strip()
-
-    return re.sub("=+$", "", bdigest)
+    return base64.b64encode(digest).decode("ascii").rstrip("=")
 
 
 def str2bytes(string):
@@ -47,8 +35,6 @@ def str2bytes(string):
     """
     u16le = "utf-16-le"
     encoded = (letter.encode(u16le)[0] for letter in string)
-    if PY2:
-        return b''.join(encoded)
     return bytes(encoded)
 
 
@@ -123,8 +109,7 @@ def generate(password, uri):
     domain name.
     """
     realm = extract_domain(uri)
-    if password.startswith(PASSWORD_PREFIX):
-        password = password[len(PASSWORD_PREFIX):]
+    password = password.removeprefix(PASSWORD_PREFIX)
 
     password_hash = _b64_hmac_md5(password, realm)
     size = len(password) + len(PASSWORD_PREFIX)
@@ -155,7 +140,7 @@ def _apply_constraints(password_hash, size, is_non_alphanumeric):
     chars_ranges = (("A", "Z"), ("a", "z"), ("0", "9"))
 
     for first, last in chars_ranges:
-        any_of_chars = re.compile("[{}-{}]".format(first, last))
+        any_of_chars = re.compile(f"[{first}-{last}]")
         if any_of_chars.search(result):
             result += next(extra_chars)
         else:
@@ -183,18 +168,15 @@ def console_main():
         uri = input("Domain: ").strip()
 
     domain = extract_domain(uri)
-    password = getpass.getpass("Password for {}: ".format(domain))
-    if PY2:
-        # getpass returns str (bytes) instead of unicode in Py2
-        password = password.decode('utf-8')
+    password = getpass.getpass(f"Password for {domain}: ")
     generated = generate(password, domain)
 
     try:
         pyperclip.copy(generated)
         print("\nHashed password was copied to clipboard.")
-    except pyperclip.exceptions.PyperclipException as error:
+    except pyperclip.PyperclipException as error:
         print(error)
-        print("\nHashed password: {}".format(generated))
+        print(f"\nHashed password: {generated}")
 
 
 if __name__ == "__main__":
