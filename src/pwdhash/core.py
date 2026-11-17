@@ -23,7 +23,7 @@ def _utf16_units(string: str) -> bytes:
     return string.encode("utf-16-le", "surrogatepass")
 
 
-def str2bytes(string: str) -> bytes:
+def _str2bytes(string: str) -> bytes:
     """Return ``string`` as bytes the way pwdhash.js feeds it to HMAC-MD5.
 
     Every UTF-16 code unit is represented by its low byte
@@ -31,14 +31,14 @@ def str2bytes(string: str) -> bytes:
     characters (e.g. Polish) give one byte each and characters outside the
     BMP (e.g. emoji) give two bytes.
 
-    Example: ``str2bytes("ąśćóasco") == b"\\x05[\\x07\\xf3asco"``
+    Example: ``_str2bytes("ąśćóasco") == b"\\x05[\\x07\\xf3asco"``
     """
     return _utf16_units(string)[::2]
 
 
 def _b64_hmac_md5(key: str, data: str) -> str:
     """Return the base64-encoded HMAC-MD5 of ``data``, without "=" padding."""
-    digest = hmac.HMAC(str2bytes(key), str2bytes(data), hashlib.md5).digest()
+    digest = hmac.HMAC(_str2bytes(key), _str2bytes(data), hashlib.md5).digest()
     return base64.b64encode(digest).decode("ascii").rstrip("=")
 
 

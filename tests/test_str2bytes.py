@@ -1,6 +1,6 @@
 import pytest
 
-import pwdhash
+from pwdhash.core import _str2bytes
 
 TEST_PARAMETERS = (
     pytest.param(
@@ -31,4 +31,4 @@ TEST_PARAMETERS = (
 
 @pytest.mark.parametrize(("string_to_encode", "expected_bytes"), TEST_PARAMETERS)
 def test_should_encode(string_to_encode: str, expected_bytes: bytes) -> None:
-    assert pwdhash.str2bytes(string_to_encode) == expected_bytes
+    assert _str2bytes(string_to_encode) == expected_bytes

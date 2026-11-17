@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from .core import PASSWORD_PREFIX, generate, str2bytes
+from .core import PASSWORD_PREFIX, generate
 from .domains import extract_domain
 
 __version__ = version("pwdhash.py")
@@ -12,5 +12,4 @@ __all__ = [
     "__version__",
     "extract_domain",
     "generate",
-    "str2bytes",
 ]
