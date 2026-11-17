@@ -6,7 +6,7 @@ import sys
 import time
 
 from . import __version__
-from .core import generate
+from .core import PASSWORD_PREFIX, generate
 from .domains import extract_domain
 
 DEFAULT_CLEAR_AFTER = 20.0
@@ -136,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         _say("")
         return EXIT_EOF
 
-    if not password:
+    if not password.removeprefix(PASSWORD_PREFIX):
         _say("pwdhash: error: the password must not be empty")
         return EXIT_USAGE
 

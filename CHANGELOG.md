@@ -18,8 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `pwdhash.str2bytes` is no longer public.
 - `console_main` is replaced by `pwdhash.cli.main(argv=None)`, which returns
   the exit code.
-- An empty master password is rejected by the command line tool instead of
-  generating a password.
+- An empty master password (also one that is just the `@@` prefix) is
+  rejected by the command line tool instead of generating a password.
 
 ### Changed (generated passwords)
 

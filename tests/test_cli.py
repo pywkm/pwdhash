@@ -243,10 +243,13 @@ def test_should_reject_invalid_domain(
     assert err == f"pwdhash: error: Cannot extract domain from {domain!r}\n"
 
 
+@pytest.mark.parametrize("password", ["", "@@"])
 def test_should_reject_empty_password(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    password: str,
 ) -> None:
-    monkeypatch.setattr("getpass.getpass", lambda _prompt: "")
+    monkeypatch.setattr("getpass.getpass", lambda _prompt: password)
 
     assert cli.main(["--print", "example.com"]) == 2
 
