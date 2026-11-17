@@ -28,8 +28,7 @@ def clipboard(monkeypatch):
     return copied
 
 
-def test_should_copy_hash_to_clipboard(monkeypatch, capsys, fake_getpass,
-                                       clipboard):
+def test_should_copy_hash_to_clipboard(monkeypatch, capsys, fake_getpass, clipboard):
     monkeypatch.setattr("sys.argv", ["pwdhash", "http://www.example.com/x"])
 
     cli.main()
@@ -41,8 +40,7 @@ def test_should_copy_hash_to_clipboard(monkeypatch, capsys, fake_getpass,
     assert EXPECTED not in out
 
 
-def test_should_ask_for_domain_when_no_argument(monkeypatch, fake_getpass,
-                                                clipboard):
+def test_should_ask_for_domain_when_no_argument(monkeypatch, fake_getpass, clipboard):
     monkeypatch.setattr("sys.argv", ["pwdhash"])
     monkeypatch.setattr("builtins.input", lambda prompt: " example.com \n")
 
@@ -51,8 +49,9 @@ def test_should_ask_for_domain_when_no_argument(monkeypatch, fake_getpass,
     assert clipboard == [EXPECTED]
 
 
-def test_should_print_hash_when_clipboard_unavailable(monkeypatch, capsys,
-                                                      fake_getpass):
+def test_should_print_hash_when_clipboard_unavailable(
+    monkeypatch, capsys, fake_getpass
+):
     def broken_copy(_text):
         raise pyperclip.PyperclipException("no clipboard mechanism")
 

@@ -61,8 +61,9 @@ def _apply_constraints(password_hash, size, is_non_alphanumeric):
     starting_size = 0 if size < 4 else size - 4
     result = password_hash[:starting_size]
 
-    extras = itertools.chain((ord(ch) for ch in password_hash[starting_size:]),
-                             itertools.repeat(0))
+    extras = itertools.chain(
+        (ord(ch) for ch in password_hash[starting_size:]), itertools.repeat(0)
+    )
     extra_chars = (chr(ch) for ch in extras)
 
     def next_between(start, end):
