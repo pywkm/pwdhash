@@ -1,7 +1,7 @@
 import pyperclip
 import pytest
 
-import pwdhash
+from pwdhash import cli
 
 PASSWORD = "password12345"
 EXPECTED = "0JMBoaKI7NFhObN"
@@ -15,14 +15,14 @@ def fake_getpass(monkeypatch):
         prompts.append(prompt)
         return PASSWORD
 
-    monkeypatch.setattr(pwdhash.getpass, "getpass", getpass)
+    monkeypatch.setattr(cli.getpass, "getpass", getpass)
     return prompts
 
 
 @pytest.fixture
 def clipboard(monkeypatch):
     copied = []
-    monkeypatch.setattr(pwdhash.pyperclip, "copy", copied.append)
+    monkeypatch.setattr(cli.pyperclip, "copy", copied.append)
     return copied
 
 
@@ -30,7 +30,7 @@ def test_should_copy_hash_to_clipboard(monkeypatch, capsys, fake_getpass,
                                        clipboard):
     monkeypatch.setattr("sys.argv", ["pwdhash", "http://www.example.com/x"])
 
-    pwdhash.console_main()
+    cli.main()
 
     assert clipboard == [EXPECTED]
     assert fake_getpass == ["Password for example.com: "]
@@ -44,7 +44,7 @@ def test_should_ask_for_domain_when_no_argument(monkeypatch, fake_getpass,
     monkeypatch.setattr("sys.argv", ["pwdhash"])
     monkeypatch.setattr("builtins.input", lambda prompt: " example.com \n")
 
-    pwdhash.console_main()
+    cli.main()
 
     assert clipboard == [EXPECTED]
 
@@ -55,9 +55,9 @@ def test_should_print_hash_when_clipboard_unavailable(monkeypatch, capsys,
         raise pyperclip.PyperclipException("no clipboard mechanism")
 
     monkeypatch.setattr("sys.argv", ["pwdhash", "example.com"])
-    monkeypatch.setattr(pwdhash.pyperclip, "copy", broken_copy)
+    monkeypatch.setattr(cli.pyperclip, "copy", broken_copy)
 
-    pwdhash.console_main()
+    cli.main()
 
     out = capsys.readouterr().out
     assert "no clipboard mechanism" in out

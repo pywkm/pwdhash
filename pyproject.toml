@@ -1,0 +1,46 @@
+[project]
+name = "pwdhash.py"
+version = "1.0.0.dev0"
+description = "Python Stanford PwdHash implementation"
+authors = [{ name = "Lev Shamardin", email = "shamardin@gmail.com" }]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+keywords = ["pwdhash", "password", "hash"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: X11 Applications",
+    "Environment :: MacOS X",
+    "Environment :: Win32 (MS Windows)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = ["pyperclip"]
+
+[project.urls]
+Homepage = "https://github.com/abbot/pwdhash"
+
+[project.scripts]
+pwdhash = "pwdhash.cli:main"
+
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "ruff", "mypy"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "pwdhash"
