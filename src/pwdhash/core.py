@@ -1,10 +1,10 @@
 """Core PwdHash algorithm."""
 
-import re
-import hmac
 import base64
 import hashlib
+import hmac
 import itertools
+import re
 
 from .domains import extract_domain
 

@@ -2,7 +2,6 @@ import pytest
 
 import pwdhash
 
-
 TEST_PARAMETERS = (
     pytest.param(
         "some simple ascii", b'some simple ascii',

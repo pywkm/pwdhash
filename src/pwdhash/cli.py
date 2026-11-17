@@ -10,10 +10,7 @@ from .domains import extract_domain
 
 
 def main():
-    if len(sys.argv) > 1:
-        uri = sys.argv[1]
-    else:
-        uri = input("Domain: ").strip()
+    uri = sys.argv[1] if len(sys.argv) > 1 else input("Domain: ").strip()
 
     domain = extract_domain(uri)
     password = getpass.getpass(f"Password for {domain}: ")
