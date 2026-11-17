@@ -2,6 +2,7 @@
 name = "pwdhash-cli"
 version = "1.0.0.dev0"
 description = "Stanford PwdHash password generator: command line tool and Python library"
+readme = "README.md"
 authors = [{ name = "Wiktor Matuszewski", email = "pywkm@wukaem.pl" }]
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
